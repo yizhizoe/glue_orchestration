@@ -1,6 +1,6 @@
 # Glue任务编排
 
-AWS Glue是一项完全托管，无服务器架构的ETL服务。客户无需预置基础设置，仅需由Glue负责预置、扩展Spark运行环境，客户只需要专注开发ETL代码，并且使用AWS Glue时，只需为ETL作业运行时间付费。然而，当客户在考虑迁移现有ETL任务到Glue的过程中，Glue任务编排的选型上有诸多选择。本文就编排选型，如何实现自动化迁移工作流，减少开发人员适配工作上做一定的探索。
+AWS Glue是一项完全托管，无服务器架构的ETL服务。客户无需预置基础设置，仅需由Glue负责预置、扩展Spark运行环境，客户只需要专注开发ETL代码，并且使用AWS Glue时，只需为ETL作业运行时间付费。然而，当客户在考虑迁移现有ETL任务到Glue的过程中，Glue任务编排的选型上有诸多选择。本文就编排选型，如何实现自动化迁移工作流，减少开发人员适配工作上做一定的探索。(Step functions reference to some blogs @zoe)
 
 ## 使用Glue Workflow编排任务
 
@@ -84,9 +84,11 @@ cdk deploy glue-workflow-cdk
 - Cloudformation单个Stack的500 resource上限
 - Cloudformation单个template长度上限
 
+**(Glue workflow的好处和坏处@guojian)**
+
 ## 使用Apache Airflow编排任务
 
-（airflow介绍和MWAA介绍）
+（airflow介绍和MWAA介绍@zoe）
 
 在这一节里，我们仅创建Airflow DAG做Glue任务的编排，Glue任务的定义我们沿用上一节CDK部署的Glue任务。
 
@@ -99,6 +101,8 @@ aws s3 mb $MWAA_S3
 aws s3 cp requirements.txt $MWAA_S3/
 aws s3 cp dags/glue_dag.py $MWAA_S3/dags/
 ```
+
+(dag代码中对operator的实现@zoe)
 
 给MWAA的执行角色添加Glue任务相应的权限。
 
@@ -119,3 +123,6 @@ Task instance的日志里记录了Glue任务的Run ID。根据这个Run ID，可
 
 ![](img/airflow_task_glue_run_id.png)
 
+(workflow里job的log@zoe)
+
+### （比较和结论@guojian)
