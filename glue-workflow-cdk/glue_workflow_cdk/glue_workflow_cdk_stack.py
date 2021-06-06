@@ -17,15 +17,18 @@ class GlueJobCdkStack(core.Stack):
                              assumed_by=ServicePrincipal("glue.amazonaws.com"),
                              managed_policies=[ManagedPolicy.from_aws_managed_policy_name("service-role/AWSGlueServiceRole")],
                              )
-            # mock job
-            job_command = CfnJob.JobCommandProperty(name='pythonshell',
+            # a dummy Glue ETL job
+            job_command = CfnJob.JobCommandProperty(name='glueetl',
                                                     script_location=SCRIPT_LOCATION)
 
             for workflow_item in workflow_dict:
                 for node in workflow_item['nodes']:
                     triggered_job_name = node['id']
+                    # Create a Glue 2.0 job
                     job = CfnJob(self, triggered_job_name,
                                  name=triggered_job_name,
+                                 glue_version='2.0',
+                                 max_capacity=5,
                                  command=job_command,
                                  role=glue_role.role_name)
 

@@ -4,7 +4,7 @@
   "nodes" : [ {
     "id" : "test-final",
     "type" : "command",
-    "in" : [ "test-job-3" ]
+    "in" : [ "test-job-3", "test-job-4" ]
   }, {
     "id" : "test-job-start",
     "type" : "java"
@@ -12,7 +12,13 @@
     "id" : "test-job-3",
     "type" : "java",
     "in" : [ "test-job-2" ]
-  }, {
+  },
+    {
+    "id" : "test-job-4",
+    "type" : "java",
+    "in" : [ "test-job-2" ]
+  },
+    {
     "id" : "test-job-2",
     "type" : "java",
     "in" : [ "test-job-start" ]
