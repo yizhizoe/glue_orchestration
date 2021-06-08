@@ -196,16 +196,14 @@ Task instance的日志里记录了Glue任务的Run ID。
 
 ### （比较和结论@guojian)
 
-|     | Glue Workflow  |Airflow|
+|     | Glue Workflow  |Airflow (MWAA)|
 |  ----  | ----  |----- |
-| 成本  | 单元格 | |
-| 开发难度  | 低～中等。小规模项目可以在线配置。job数量较多时候，可以使用CDK或者bot3自动创建job.  |高，需要编写python 代码生成dag。|
-｜ 运维难度｜低，无需关注HA,性能等问题。｜中，得益于AWS提供MWAA很多程度降低airflow的运维工作量。但使用人员还是管airflo资源分配问题｜
-｜支持大数据引擎｜主要支持glue job .可以通过python shell调用其他数据处理｜丰富的operator支持｜
-｜可视化功能｜可以页面惊喜workflow配置｜页面无法配置workflow. job数量多时，展示更友好。｜
-｜ETL相关｜glue 提供基本的 调度功能，可以做事件和监控功能可以通过。event bridge和cloudwatch来实现。｜Airflow 有更丰富调度功能。比如job  SLA， Pool管理。｜
+| 成本  | 低  @zoe| 中  @zoe|
+|ETL功能|glue提供基本的调度功能。高级的监控功能可以通过EventBridge和CloudWatch来实现。|Airflow 有更丰富ETL相关功能。比如调度，Job SLA， Pool管理,hook等。|
+| 开发难度  | 低～中等。小规模项目可以在线配置。job数量较多时候，可以使用CDK或者bot3自动创建job.  |高，需要编写python代码生成dag。|
+| 运维难度|低，无需关注HA,性能等问题。|中，得益于AWS提供MWAA,降低airflow的运维工作量。但使用人员还是关注airflow的性能和资源情况|
+|支持大数据引擎 | 主要支持glue job .可以通过python shell调用其他数据|丰富的operator支持|
+|可视化功能|可视化配置workflow。可以在页面上进行job调用，workflow重试功能|web页面主要为信息展示，只提供基本操作。特别是页面无法配置workflow. job数量多时，展示更友好。页面主要|
 
-
-
-GLue workflow和ariflow有各自的设计哲学和适用场景。如果你不知道，项目规模较小，团队开发能力偏弱，建议可以尝试使用Glue Workflow作为。如果项目规模庞大依赖非常非常，直接使用
+GLue workflow和ariflow有各自的设计哲学和适用场景。如果你不知道如何选择，下面是一些建议：项目规模较小，团队开发能力偏弱，建议可以先尝试使用Glue Workflow。如果项目规模庞大，数据流程复杂度比较高,可以考虑使用
 airflow作为glue调度工具
