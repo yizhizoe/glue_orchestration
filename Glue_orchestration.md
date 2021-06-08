@@ -1,6 +1,12 @@
 # Glue任务编排
 
-AWS Glue是一项完全托管，无服务器架构的ETL服务。客户无需预置基础设置，仅需由Glue负责预置、扩展Spark运行环境，客户只需要专注开发ETL代码，并且使用AWS Glue时，只需为ETL作业运行时间付费。然而，当客户在考虑迁移现有ETL任务到Glue的过程中，Glue任务编排的选型上有诸多选择。本文就编排选型，如何实现自动化迁移工作流，减少开发人员适配工作上做一定的探索。(Step functions reference to some blogs @zoe)
+AWS Glue是一项完全托管，无服务器架构的ETL服务。客户无需预置基础设置，仅需由Glue负责预置、扩展Spark运行环境，客户只需要专注开发ETL代码，并且使用AWS Glue时，只需为ETL作业运行时间付费。然而，当客户在考虑迁移现有ETL任务到Glue的过程中，Glue任务编排的选型上有诸多选择，例如：
+
+- AWS原生编排服务Step Functions
+- Glue原生的Glue Workflow
+- 数据工程中流行的Apache Airflow
+
+本文就编排选型，如何实现自动化迁移工作流，减少开发人员适配工作上做一定的探索。关于使用Step Functions管理Glue任务的资料相对丰富，可以参考官方文档：[使用AWS Step Functions管理Glue任务](https://docs.aws.amazon.com/step-functions/latest/dg/connect-glue.html)以及[诸多博客](https://aws.amazon.com/cn/blogs/big-data/category/application-services/aws-step-functions/)，本文不再重复，会重点介绍后两种编排方式，并且加以总结。
 
 ## 使用Glue Workflow编排任务
 
@@ -59,11 +65,10 @@ cdk deploy glue-job-cdk
 cdk deploy glue-workflow-cdk
 ```
 
-在CloudFormation Stack中我们能看到这样的结果。并且在Glue界面里看到任务
+在CloudFormation Stack中我们能看到创建了两个堆栈
 
-![image-20210604160520323](img/image-20210604160520323.png)
-
-
+- glue-job-cdk部署了描述文件中所有的Glue ETL任务。由于示例代码仅关注任务之间的编排，每个任务都使用了一个最简单的Spark脚本，使用了Glue 2.0的引擎并且分配了5个DPU。
+- glue-workflow-cdk部署了Glue工作流的定义，并且激活了工作流中的每一个触发器。
 
 ![image-20210606115640987](img/image-20210606115640987.png)
 
@@ -71,15 +76,15 @@ cdk deploy glue-workflow-cdk
 
 ![image-20210606115843429](img/image-20210606115843429.png)
 
-尝试启动工作流
+尝试启动工作流，可以看到执行成功。
 
-![image-20210606115944968](img/image-20210606115944968.png)
+<img src="img/image-20210606115944968.png" alt="image-20210606115944968" style="zoom: 33%;" />
 
 ### 更新工作流
 
 当开发人员在工作流需要添加一个任务test-job-4，并且更改任务之间依赖，他只需要在json文件里修改。
 
-<img src="img/update_json.jpg" style="zoom: 50%;" />
+<img src="img/update_json.jpg" style="zoom: 33%;" />
 
 重新部署Glue任务和Glue工作流的CDK堆栈
 
@@ -89,7 +94,7 @@ cdk deploy glue-job-cdk
 cdk deploy glue-workflow-cdk
 ```
 
-在CloudFormation glue-workflow-cdk堆栈的Changeset里，我们注意到在只有变化的部分被更新了。
+在CloudFormation glue-workflow-cdk堆栈的Changes里，我们注意到在只有变化的部分被更新了。
 
 <img src="img/image-20210604143357776.png" alt="image-20210604143357776" style="zoom:50%;" />
 
@@ -99,10 +104,10 @@ cdk deploy glue-workflow-cdk
 
 虽然在我们的示例中只有几个任务的工作流，但是在实践中可以应用到更多更复杂的工作流的更新上。使用CDK的部署方式使得开发人员只需要维护比较简单的依赖描述文件，而不需要去反复实现工作流部署的代码。
 
-在使用CDK部署工作流的同时，需要注意以下CloudFormation的一些限制
+在使用CDK部署工作流的同时，需要注意以下CloudFormation的[一些限制](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html)
 
-- CloudFormation单个Stack最多定义500个resource：由于任务的堆栈
-- CloudFormation单个template长度上限
+- CloudFormation单个Stack资源上限：由于任务的堆栈里每个工作流、任务、触发器都会对应一个资源，需要注意单个堆栈最多只能有500个资源。
+- CloudFormation单个模板长度上限：如果工作流过长（几百个任务以上），可能会使得CDK生成的CloudFormation模板超过1MB的长度限制。
 
 **(Glue workflow的好处和坏处@guojian)**
 
@@ -129,7 +134,7 @@ aws s3 cp sample_workflow.json $MWAA_S3/
 aws s3 cp dags/glue_dag.py $MWAA_S3/dags/
 ```
 
-2. [按照MWAA Get Started文档创建MWAA环境](https://docs.aws.amazon.com/mwaa/latest/userguide/get-started.html)，注意以下MWAA环境使用的是最新Airflow 2.0以上的环境，在创建MWAA环境时，选择Airflow 2.0.2。
+2. [按照MWAA Get Started文档创建MWAA环境](https://docs.aws.amazon.com/mwaa/latest/userguide/get-started.html)，注意以下MWAA环境使用的是最新Airflow 2.0以上的环境，在创建MWAA环境时，选择**Airflow 2.0.2**。
 
 3. 给MWAA的执行角色添加Glue任务相应的权限。
 
@@ -140,11 +145,11 @@ aws iam attach-role-policy --role-name Glue-mwaa-env-role --policy-arn $POLICY_A
 
 ### Glue ETL任务DAG的实现
 
-虽然Airflow提供了[AWS Glue Operator](https://airflow.apache.org/docs/apache-airflow-providers-amazon/stable/_api/airflow/providers/amazon/aws/operators/glue/index.html)，但目前这个Operator仅支持创建并执行Glue 1.0的任务。在示例代码中，我们用PythonOperator自定义了Glue的operator，底下实现使用AwsBaseHook启动Glue任务，轮询其状态。
+虽然Airflow提供了[AWS Glue Operator](https://airflow.apache.org/docs/apache-airflow-providers-amazon/stable/_api/airflow/providers/amazon/aws/operators/glue/index.html)，但目前这个Operator仅支持创建并执行Glue 1.0的任务。在示例代码中，我们用PythonOperator自定义了Glue的operator，底下实现使用AwsBaseHook启动Glue任务，轮询其状态，并且将任务的唯一标识ID记录在Airflow worker日志中。
 
 ```python
 def get_glue_operator_args(job_name):
-    glue_client = AwsBaseHook(aws_conn_id='aws_default', client_type='glue').get_client_type(client_type='glue')
+    glue_client = AwsBaseHook(aws_conn_id='aws_default').get_client_type(client_type='glue')
     response = glue_client.start_job_run(JobName=job_name)
     job_id = response['JobRunId']
     print("Job {} ID: {}".format(job_name,job_id))
@@ -164,12 +169,10 @@ def get_glue_operator_args(job_name):
 
 登录到Airflow的UI界面上可以看到sample-workflow-by-airflow的DAG。在启动它之前，我们先设置所需的两个Airflow变量。
 
-- bucket_name：设置为MWAA_S3的bucket名字
+- workflow_file_path：设置为工作流json文件的S3 URI
 - max_capacity：这是Glue任务所需的资源容量，即DPU数量。此处我们设置为5。
 
-<img src="img/image-20210606145933430.png" alt="image-20210606145933430" style="zoom:50%;" />
-
-![image-20210606150401911](img/image-20210606150401911.png)
+![image-20210608113952820](img/image-20210608113952820.png)
 
 回到DAG的界面，将sample_workflow_by_airflow DAG设置为active。在Graph view里可以看到这个DAG结构和json描述文件里的任务相对应。启动DAG可以看到DAG执行成功。
 
@@ -187,8 +190,9 @@ Task instance的日志里记录了Glue任务的Run ID。
 
 <img src="img/image-20210606151107932.png" alt="image-20210606151107932" style="zoom:50%;" />
 
-![image-20210606131103760](img/image-20210606131103760.png)
+<img src="img/image-20210608114209295.png" alt="image-20210608114209295" style="zoom: 33%;" />
 
 
 
 ### （比较和结论@guojian)
+
