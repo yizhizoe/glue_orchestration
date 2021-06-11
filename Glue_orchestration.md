@@ -205,5 +205,5 @@ Task instance的日志里记录了Glue任务的Run ID。
 |支持大数据引擎 | 主要支持glue job .可以通过python shell调用其他数据|丰富的operator支持|
 |可视化功能|可视化配置workflow。可以在页面上进行job调用，workflow重试功能|web页面提供丰富ETL相关展示，但无法可视化配置workflow.在job数量多时，展示更友好。|
 
-GLue workflow和ariflow有各自的设计哲学和适用场景。如果你不知道如何选择，下面是一些建议：项目规模较小，团队开发能力偏弱，建议可以先尝试使用Glue Workflow。如果项目规模庞大，数据流程复杂度比较高,可以考虑使用
+GLue workflow和ariflow有各自的设计哲学和适用场景。如果你不知道如何选择，下面是一些建议：项目规模较小，团队开发能力偏弱，可以先尝试使用Glue Workflow。如果项目规模庞大，数据流程复杂度比较高,可以考虑使用
 airflow作为glue调度工具
