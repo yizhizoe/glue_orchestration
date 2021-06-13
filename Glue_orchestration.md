@@ -208,7 +208,7 @@ Task instance的日志里记录了Glue任务的Run ID。
 |支持大数据引擎 | 主要支持glue job .可以通过python shell调用其他数据|丰富的operator支持|与大部分AWS 服务能良好集成。包括EMR,Glue Job.|
 |可视化功能|可视化配置workflow。可以在页面上进行job调用，workflow重试功能|web页面提供丰富ETL相关展示，但无法可视化配置workflow.在job数量多时，展示更友好。|可以通过配置代码在控制台编辑workflow。|
 
-GLue workflow和ariflow有各自的设计哲学和适用场景。如果你不知道如何选择，下面是一些建议：
+GLue workflow，Ariflow和Step Function有各自的设计哲学和适用场景。如果你不知道如何选择，下面是一些建议：
 - Aws Step Function优势在于集成AWS 服务。如果ETL 规模很小而且需要集成AWS其它服务，如Lambda, ECS等，Step function是最佳选项。
 - 项目规模较小，团队开发能力偏弱，可以先尝试使用Glue Workflow。
-- 如果项目规模庞大，数据流程复杂度比较高,可以考虑使用airflow作为glue调度工具。
+- 如果项目规模庞大，数据流程复杂度比较高,可以考虑使用Airflow作为Glue任务调度工具。
