@@ -1,4 +1,4 @@
-# Glue任务编排
+# AWS Glue任务编排
 
 AWS Glue是一项完全托管，无服务器架构的ETL服务。客户无需预置基础设置，仅需由Glue负责预置、扩展Spark运行环境，客户只需要专注开发ETL代码，并且使用AWS Glue时，只需为ETL作业运行时间付费。然而，当客户在考虑迁移现有ETL任务到Glue的过程中，Glue任务编排的选型上有诸多选择，例如：
 
@@ -195,20 +195,20 @@ Task instance的日志里记录了Glue任务的Run ID。
 
 
 ##  Glue任务编排工具比较和总结
- 
-虽然本文没有具体介绍Step function操作,但为了更全面比较流程编工具优缺点，仍将它加到比较表格中。
- 
 
-|     | Glue Workflow  |Airflow (MWAA)|AWS Step Function| 
+虽然本文没有具体介绍AWS Step functions操作,但为了更全面比较流程编工具优缺点，仍将它加到比较表格中。
+
+
+|     | Glue Workflow  |Airflow (MWAA)|AWS Step Functions|
 |  ----  | ----  |----- |-----|
-| 成本  | 低  | 中  |低|
-|ETL功能|glue提供的基本调度,重试等功能。高级的监控功能可以通过EventBridge和CloudWatch来实现。|Airflow 有更丰富ETL相关功能。比如调度，Job SLA， Pool管理,hook等。|有基本流程调度功能。ETL操作相关功能没有glue workflow和airflow 丰富。|
-| 开发难度  | 低～中等。小规模项目可以在线配置。job数量较多时候，可以使用CDK或者Boto33自动创建job.  |高，需要编写python代码生成dag。|中等。需要了解Step function状态机语法|
-| 运维难度|低，无需关注HA,性能等问题。|中，基于AWS提供MWAA,可以大幅度降低Airflow的运维工作量。但使用人员仍关注airflow的性能和资源情况|低。AWS托管服务。|
-|支持大数据引擎 | 主要支持glue job .可以通过python shell调用其他数据|丰富的operator支持|与大部分AWS 服务能良好集成。包括EMR,Glue Job.|
-|可视化功能|可视化配置workflow。可以在页面上进行job调用，workflow重试功能|web页面提供丰富ETL相关展示，但无法可视化配置workflow.在job数量多时，展示更友好。|可以通过配置代码在控制台编辑workflow。|
+| 成本  | 无 （Glue Workflow功能本身是免费的） | 中（Environment instance按小时收费，Worker按DAG执行时间收费） |低|
+|ETL功能|Glue提供基本调度,重试等功能。高级的监控功能可以通过EventBridge和CloudWatch来实现。|Airflow 有更丰富ETL相关功能。比如调度，Job SLA，Pool管理，hook等。|有基本流程调度功能。ETL操作相关功能没有Glue Workflow和Airflow 丰富。|
+| 开发难度  | 低～中等。小规模项目可以在线配置。Glue任务数量较多时候，可以使用CDK或者boto3自动创建job. |高，需要编写python代码生成DAG。|中等。需要了解Step Functions状态机语法|
+| 运维难度|低，无需关注HA,性能等问题。|中，基于AWS提供MWAA,可以大幅度降低Airflow的运维工作量。但使用人员仍关注Airflow的性能和资源情况|低，AWS无服务器服务。|
+|支持大数据引擎 | 主要支持Glue任务。可以通过python shell调用其他服务。 |丰富的operator支持|与大部分AWS 服务能良好集成。包括EMR服务,Glue ETL任务。|
+|可视化功能|可视化配置工作流。可以在页面上进行任务调用，工作流重试功能|Web页面提供丰富ETL相关展示，但无法可视化配置DAG。在任务数量多时，展示更友好。|可以通过配置代码在控制台编辑工作流。|
 
-GLue workflow，Ariflow和Step Function有各自的设计哲学和适用场景。如果你不知道如何选择，下面是一些建议：
-- Aws Step Function优势在于集成AWS 服务。如果ETL 规模很小而且需要集成AWS其它服务，如Lambda, ECS等，Step function是最佳选项。
+Glue workflow，Airflow和Step Functions有各自的设计哲学和适用场景。如果你不知道如何选择，下面是一些建议：
+- AWS Step Functions优势在于集成AWS 服务。如果ETL 规模很小而且需要集成AWS其它服务，如Lambda, EMR等，Step functions是最佳选项。
 - 项目规模较小，团队开发能力偏弱，可以先尝试使用Glue Workflow。
 - 如果项目规模庞大，数据流程复杂度比较高,可以考虑使用Airflow作为Glue任务调度工具。
