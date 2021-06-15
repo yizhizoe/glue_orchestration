@@ -194,16 +194,21 @@ Task instance的日志里记录了Glue任务的Run ID。
 
 
 
-### （比较和结论@guojian)
+##  Glue任务编排工具比较和总结
+ 
+虽然本文没有具体介绍Step function操作,但为了更全面比较流程编工具优缺点，仍将它加到比较表格中。
+ 
 
-|     | Glue Workflow  |Airflow (MWAA)|
-|  ----  | ----  |----- |
-| 成本  | 低  @zoe| 中  @zoe|
-|ETL功能|glue提供基本的调度功能。高级的监控功能可以通过EventBridge和CloudWatch来实现。|Airflow 有更丰富ETL相关功能。比如调度，Job SLA， Pool管理,hook等。|
-| 开发难度  | 低～中等。小规模项目可以在线配置。job数量较多时候，可以使用CDK或者Boto33自动创建job.  |高，需要编写python代码生成dag。|
-| 运维难度|低，无需关注HA,性能等问题。|中，基于AWS提供MWAA,可以大幅度降低Airflow的运维工作量。但使用人员仍关注airflow的性能和资源情况|
-|支持大数据引擎 | 主要支持glue job .可以通过python shell调用其他数据|丰富的operator支持|
-|可视化功能|可视化配置workflow。可以在页面上进行job调用，workflow重试功能|web页面提供丰富ETL相关展示，但无法可视化配置workflow.在job数量多时，展示更友好。|
+|     | Glue Workflow  |Airflow (MWAA)|AWS Step Function| 
+|  ----  | ----  |----- |-----|
+| 成本  | 低  | 中  |低|
+|ETL功能|glue提供的基本调度,重试等功能。高级的监控功能可以通过EventBridge和CloudWatch来实现。|Airflow 有更丰富ETL相关功能。比如调度，Job SLA， Pool管理,hook等。|有基本流程调度功能。ETL操作相关功能没有glue workflow和airflow 丰富。|
+| 开发难度  | 低～中等。小规模项目可以在线配置。job数量较多时候，可以使用CDK或者Boto33自动创建job.  |高，需要编写python代码生成dag。|中等。需要了解Step function状态机语法|
+| 运维难度|低，无需关注HA,性能等问题。|中，基于AWS提供MWAA,可以大幅度降低Airflow的运维工作量。但使用人员仍关注airflow的性能和资源情况|低。AWS托管服务。|
+|支持大数据引擎 | 主要支持glue job .可以通过python shell调用其他数据|丰富的operator支持|与大部分AWS 服务能良好集成。包括EMR,Glue Job.|
+|可视化功能|可视化配置workflow。可以在页面上进行job调用，workflow重试功能|web页面提供丰富ETL相关展示，但无法可视化配置workflow.在job数量多时，展示更友好。|可以通过配置代码在控制台编辑workflow。|
 
-GLue workflow和ariflow有各自的设计哲学和适用场景。如果你不知道如何选择，下面是一些建议：项目规模较小，团队开发能力偏弱，可以先尝试使用Glue Workflow。如果项目规模庞大，数据流程复杂度比较高,可以考虑使用
-airflow作为glue调度工具
+GLue workflow，Ariflow和Step Function有各自的设计哲学和适用场景。如果你不知道如何选择，下面是一些建议：
+- Aws Step Function优势在于集成AWS 服务。如果ETL 规模很小而且需要集成AWS其它服务，如Lambda, ECS等，Step function是最佳选项。
+- 项目规模较小，团队开发能力偏弱，可以先尝试使用Glue Workflow。
+- 如果项目规模庞大，数据流程复杂度比较高,可以考虑使用Airflow作为Glue任务调度工具。
