@@ -145,7 +145,7 @@ aws iam attach-role-policy --role-name Glue-mwaa-env-role --policy-arn $POLICY_A
 
 ### Glue ETL任务DAG的实现
 
-虽然Airflow提供了[AWS Glue Operator](https://airflow.apache.org/docs/apache-airflow-providers-amazon/stable/_api/airflow/providers/amazon/aws/operators/glue/index.html)，但目前这个Operator仅支持创建并执行Glue 1.0的任务。在示例代码中，我们用PythonOperator自定义了Glue的operator，底下实现使用AwsBaseHook启动Glue任务，轮询其状态，并且将任务的唯一标识ID记录在Airflow worker日志中。
+虽然Airflow提供了[AWS Glue Operator](https://airflow.apache.org/docs/apache-airflow-providers-amazon/stable/_api/airflow/providers/amazon/aws/operators/glue/index.html)，但目前这个Operator仅支持创建并执行Glue 1.0的任务。由于Glue 2.0的任务类型启动时间更短，并且运行收费更经济，所以我们希望在示例代码中展示调度Glue 2.0的任务。我们用PythonOperator自定义了Glue的operator，底下实现使用AwsBaseHook启动Glue任务，轮询其状态，并且将任务的唯一标识ID记录在Airflow worker日志中。
 
 ```python
 def get_glue_operator_args(job_name):
