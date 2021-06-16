@@ -1,9 +1,11 @@
 # AWS Glue任务编排
 
-AWS Glue是一项完全托管，无服务器架构的ETL服务。客户无需预置基础设置，仅需由Glue负责预置、扩展Spark运行环境，客户只需要专注开发ETL代码，并且使用AWS Glue时，只需为ETL作业运行时间付费。然而，当客户在考虑迁移现有ETL任务到Glue的过程中，Glue任务编排的选型上有诸多选择，例如：
+AWS Glue是一项完全托管，无服务器架构的ETL服务。客户无需预置基础设置，仅需由Glue负责预置、扩展Spark运行环境，客户只需要专注开发ETL代码，并且使用AWS Glue时，只需为ETL作业运行时间付费。
 
-- AWS原生编排服务Step Functions
-- Glue原生的Glue Workflow
+介于Glue的诸多好处，很多客户考虑将现有Spark任务迁移到Glue上，然而，在迁移过程中，客户发现现有ETL任务的编排工具和Glue并没有很好的集成，在迁移过程中还需要对编排工具重新选型。Glue作为一种新型的ETL服务，任务编排的选型上有诸多选择，例如：
+
+- AWS原生编排服务AWS Step Functions
+- Glue原生的编排功能Glue Workflow
 - 数据工程中流行的Apache Airflow
 
 本文就编排选型，如何实现自动化迁移工作流，减少开发人员适配工作上做一定的探索。关于使用Step Functions管理Glue任务的资料相对丰富，可以参考官方文档：[使用AWS Step Functions管理Glue任务](https://docs.aws.amazon.com/step-functions/latest/dg/connect-glue.html)以及[诸多博客](https://aws.amazon.com/cn/blogs/big-data/category/application-services/aws-step-functions/)，本文不再重复，会重点介绍后两种编排方式，并且加以总结。
@@ -109,8 +111,6 @@ cdk deploy glue-workflow-cdk
 - CloudFormation单个Stack资源上限：由于任务的堆栈里每个工作流、任务、触发器都会对应一个资源，需要注意单个堆栈最多只能有500个资源。
 - CloudFormation单个模板长度上限：如果工作流过长（几百个任务以上），可能会使得CDK生成的CloudFormation模板超过1MB的长度限制。
 
-**(Glue workflow的好处和坏处@guojian)**
-
 ## 使用Apache Airflow编排任务
 
 Apache Airflow 是近几年流行的一个分布式的通用任务编排平台，通过  DAG（Directed acyclic graph 有向无环图）来管理任务流程的任务调度工具，而DAG在Python代码中定义，设置任务的依赖关系即可实现任务调度。Airflow记录了已执行任务的状态，报告故障，必要时重试，并允许安排整个管道或其部分以通过回填来执行。
@@ -191,8 +191,6 @@ Task instance的日志里记录了Glue任务的Run ID。
 <img src="img/image-20210606151107932.png" alt="image-20210606151107932" style="zoom:50%;" />
 
 <img src="img/image-20210608114209295.png" alt="image-20210608114209295" style="zoom: 33%;" />
-
-
 
 ##  Glue任务编排工具比较和总结
 
